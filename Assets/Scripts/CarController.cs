@@ -16,6 +16,7 @@ public class mobil : MonoBehaviour
     [SerializeField] private float brakeForce = 3000f;
     [SerializeField] private float maxSteerAngle = 30f;
 
+
     // =========================
     // WHEEL COLLIDERS
     // =========================
@@ -24,6 +25,7 @@ public class mobil : MonoBehaviour
     [SerializeField] private WheelCollider frontRightWheelCollider;
     [SerializeField] private WheelCollider rearLeftWheelCollider;
     [SerializeField] private WheelCollider rearRightWheelCollider;
+
 
     // =========================
     // WHEEL VISUALS
@@ -34,6 +36,7 @@ public class mobil : MonoBehaviour
     [SerializeField] private Transform rearLeftWheelTransform;
     [SerializeField] private Transform rearRightWheelTransform;
 
+
     private void FixedUpdate()
     {
         GetInput();
@@ -42,31 +45,34 @@ public class mobil : MonoBehaviour
         UpdateWheels();
     }
 
+
     // =========================
-    // INPUT
+    // INPUT MOBILE
     // =========================
     private void GetInput()
     {
-        horizontalInput = Input.GetAxis("Horizontal");
-        verticalInput = Input.GetAxis("Vertical");
+        horizontalInput = MobileInput.steer;
+        verticalInput = MobileInput.gas;
 
-        isBraking = Input.GetKey(KeyCode.Space);
+        isBraking = MobileInput.brake > 0;
     }
+
 
     // =========================
     // MOTOR
     // =========================
     private void HandleMotor()
     {
-        // RWD (penggerak belakang)
+        // RWD
         rearLeftWheelCollider.motorTorque = verticalInput * motorForce;
         rearRightWheelCollider.motorTorque = verticalInput * motorForce;
 
-        // Brake
+
         currentBrakeForce = isBraking ? brakeForce : 0f;
 
         ApplyBraking();
     }
+
 
     // =========================
     // BRAKING
@@ -80,6 +86,7 @@ public class mobil : MonoBehaviour
         rearRightWheelCollider.brakeTorque = currentBrakeForce;
     }
 
+
     // =========================
     // STEERING
     // =========================
@@ -91,32 +98,29 @@ public class mobil : MonoBehaviour
         frontRightWheelCollider.steerAngle = currentSteerAngle;
     }
 
+
     // =========================
     // UPDATE WHEELS
     // =========================
     private void UpdateWheels()
     {
-        // kiri = normal
         UpdateSingleWheel(frontLeftWheelCollider, frontLeftWheelTransform, false);
         UpdateSingleWheel(rearLeftWheelCollider, rearLeftWheelTransform, false);
 
-        // kanan = dibalik
         UpdateSingleWheel(frontRightWheelCollider, frontRightWheelTransform, true);
         UpdateSingleWheel(rearRightWheelCollider, rearRightWheelTransform, true);
     }
+
 
     private void UpdateSingleWheel(WheelCollider wheelCollider, Transform wheelTransform, bool isRightSide)
     {
         Vector3 pos;
         Quaternion rot;
 
-        // Ambil posisi & rotasi WheelCollider
         wheelCollider.GetWorldPose(out pos, out rot);
 
-        // Update posisi roda
         wheelTransform.position = pos;
 
-        // Fix roda kanan
         if (isRightSide)
         {
             wheelTransform.rotation = rot;
